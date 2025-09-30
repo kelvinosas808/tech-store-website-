@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Osawese Tech - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1e40af',
+                        accent: '#f59e0b',
+                    }
+                }
+            }
+        }
+        
+
+    </script>
+    
+    <script>
+  function togglePassword() {
+    const password = document.getElementById("password");
+    const eyeIcon = document.getElementById("eye-icon");
+    if (password.type === "password") {
+      password.type = "text";
+      eyeIcon.setAttribute("stroke", "#2563eb"); // highlight when active
+    } else {
+      password.type = "password";
+      eyeIcon.setAttribute("stroke", "currentColor");
+    }
+  }
+  // Time Bar Functions - Simple countdown timer
+
+let countdownInterval = null;
+let remainingSeconds = 300; // 5 minutes (5:00)
+
+// Format time as MM:SS
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Update countdown and progress bar
+function updateCountdown() {
+  remainingSeconds--;
+  
+  if (remainingSeconds <= 0) {
+    remainingSeconds = 300; // Reset to 5 minutes
+  }
+  
+  // Update countdown display
+  const nextSyncEl = document.getElementById('next-sync');
+  if (nextSyncEl) {
+    nextSyncEl.textContent = formatTime(remainingSeconds);
+  }
+  
+  // Update progress bar (empties as time passes)
+  const progressPercent = (remainingSeconds / 300) * 100;
+  const syncProgressEl = document.getElementById('sync-progress');
+  if (syncProgressEl) {
+    syncProgressEl.style.width = progressPercent + '%';
+  }
+}
+
+// Start the countdown timer
+function startTimeBar() {
+  // Set initial countdown
+  const nextSyncEl = document.getElementById('next-sync');
+  const syncProgressEl = document.getElementById('sync-progress');
+  
+  if (nextSyncEl) {
+    nextSyncEl.textContent = formatTime(remainingSeconds);
+  }
+  
+  if (syncProgressEl) {
+    syncProgressEl.style.width = '100%';
+  }
+  
+  // Start countdown
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+  countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+// Wait for DOM to be ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', startTimeBar);
+} else {
+  startTimeBar();
+}
+</script>
+ <style>
+    @keyframes slideInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+    @keyframes countUp { from{opacity:0;transform:scale(0.9);} to{opacity:1;transform:scale(1);} }
+    @keyframes pulse-ring { 0%{transform:scale(0.9);opacity:1;} 100%{transform:scale(1.3);opacity:0;} }
+    @keyframes shimmer { 0%{background-position:-1000px 0;} 100%{background-position:1000px 0;} }
+    .animate-slide-in-up { animation: slideInUp 0.5s ease-out forwards; }
+    .animate-count-up { animation: countUp 0.6s ease-out forwards; }
+    .pulse-ring { animation: pulse-ring 1.2s cubic-bezier(0.215,0.61,0.355,1) infinite; }
+    .shimmer { background: linear-gradient(90deg,transparent,rgba(255,255,255,0.6),transparent); background-size: 1000px 100%; animation: shimmer 2s infinite; }
+    .stat-card { transition: all 0.3s ease; cursor: pointer; }
+    .stat-card:hover { transform: translateY(-3px) scale(1.01); }
+    .icon-container { transition: all 0.3s ease; }
+    .stat-card:hover .icon-container { transform: rotate(360deg) scale(1.05); }
+    .progress-bar { transition: width 1s ease; }
+    .chart-line { stroke-dasharray:1000; stroke-dashoffset:1000; animation: drawLine 1.5s ease forwards; }
+    @keyframes drawLine { to { stroke-dashoffset:0; } }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    
+ <!-- Login Form -->
+<div id="login-form" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 space-y-6">
+    
+    <!-- Header -->
+    <div class="text-center">
+      <h2 class="text-3xl font-extrabold text-gray-900">Osawese Tech Admin</h2>
+      <p class="mt-2 text-sm text-gray-600">Sign in to manage your store</p>
+    </div>
+
+    <!-- Form -->
+    <form class="space-y-5" onsubmit="handleLogin(event)">
+      <div class="space-y-4">
+        <!-- Username -->
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input id="username" name="username" type="text" required
+                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                 placeholder="Enter your username">
+        </div>
+
+        <!-- Password with toggle -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+          <div class="relative">
+            <input id="password" name="password" type="password" required
+                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                   placeholder="Enter your password">
+            <button type="button" onclick="togglePassword()" 
+                    class="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-gray-600">
+              <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="error-message" class="hidden text-red-600 text-sm text-center bg-red-50 p-3 rounded-md">
+        Invalid username or password
+      </div>
+
+      <!-- Submit -->
+      <div>
+        <button type="submit"
+                class="w-full py-2 px-4 flex justify-center items-center text-sm font-medium rounded-lg text-white bg-primary hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors">
+          Sign In
+        </button>
+      </div>
+
+      <!-- Back Link -->
+      <div class="text-center">
+        <a href="index.html" class="text-sm text-primary hover:text-secondary">
+          ← Back to Store
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="hidden">
+        <!-- Header -->
+    <!-- Header -->
+    <header class="bg-white shadow sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <!-- Logo / Title -->
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-wide">
+                    Osawese Tech Admin
+                </h1>
+
+                <!-- Right Section -->
+                <div class="flex items-center space-x-4">
+                    <!-- View Store -->
+                    <a href="index.html" 
+                       class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                             fill="none" viewBox="0 0 24 24" 
+                             stroke-width="1.5" stroke="currentColor" 
+                             class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" 
+                                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 
+                                     01-1 1h-3m-6 0h6" />
+                        </svg>
+                        View Store
+                    </a>
+
+                    <!-- Logout Button -->
+                    <button onclick="logout()" 
+                            class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-lg shadow-sm transition-all flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                             fill="none" viewBox="0 0 24 24" 
+                             stroke-width="1.5" stroke="currentColor" 
+                             class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" 
+                                  d="M15.75 9V5.25A2.25 2.25 0 0013.5 
+                                     3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 
+                                     2.25 0 007.5 21h6a2.25 2.25 0 
+                                     002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H3"/>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+<!-- Main Content -->
+<main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+  <!-- Dashboard Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+    
+    <!-- Products Card -->
+    <div class="stat-card bg-white shadow rounded-lg overflow-hidden p-2.5 opacity-0 animate-slide-in-up" style="animation-delay:0.1s;" onclick="refreshCard(1)">
+      <div class="h-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 progress-bar mb-1.5" id="progress-1" style="width:0%;"></div>
+      <div class="flex items-center space-x-2">
+        <div class="icon-container w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-md flex items-center justify-center relative flex-shrink-0">
+          <div class="absolute inset-0 rounded-md pulse-ring bg-indigo-500"></div>
+          <svg class="w-3.5 h-3.5 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+          </svg>
+        </div>
+        <div>
+          <dt class="text-[9px] text-gray-500 uppercase">Products</dt>
+          <dd class="text-lg font-bold text-indigo-600" id="total-products">0</dd>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-1.5">
+        <svg class="w-16 h-5" viewBox="0 0 100 30">
+          <polyline class="chart-line" fill="none" stroke="url(#grad1)" stroke-width="2"
+            points="0,20 20,15 40,18 60,10 80,12 100,8"/>
+          <defs>
+            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#667eea" />
+              <stop offset="100%" stop-color="#764ba2" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">+12%</span>
+      </div>
+    </div>
+
+    <!-- Status Card -->
+    <div class="stat-card bg-white shadow rounded-lg overflow-hidden p-2.5 opacity-0 animate-slide-in-up" style="animation-delay:0.2s;" onclick="toggleStatus()">
+      <div class="h-0.5 bg-gradient-to-r from-green-400 to-emerald-600 progress-bar mb-1.5" id="progress-2"></div>
+      <div class="flex items-center space-x-2">
+        <div class="icon-container w-7 h-7 bg-gradient-to-br from-green-400 to-emerald-600 rounded-md flex items-center justify-center relative flex-shrink-0">
+          <div class="absolute inset-0 rounded-md pulse-ring bg-green-400"></div>
+          <svg class="w-3.5 h-3.5 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <dt class="text-[9px] text-gray-500 uppercase">Status</dt>
+          <dd class="text-lg font-bold text-green-600" id="status-text">Active</dd>
+        </div>
+      </div>
+      <div class="flex space-x-2 mt-1.5 text-[9px]">
+        <div class="flex items-center"><div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>Server</div>
+        <div class="flex items-center"><div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>DB</div>
+        <div class="flex items-center"><div class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>API</div>
+      </div>
+    </div>
+
+    <!-- Last Update Card -->
+    <div class="stat-card bg-white shadow rounded-lg overflow-hidden p-2.5 opacity-0 animate-slide-in-up" style="animation-delay:0.3s;" onclick="updateTime()">
+      <div class="h-0.5 bg-gradient-to-r from-amber-400 to-orange-600 progress-bar mb-1.5" id="progress-3"></div>
+      <div class="flex items-center space-x-2">
+        <div class="icon-container w-7 h-7 bg-gradient-to-br from-amber-400 to-orange-600 rounded-md flex items-center justify-center relative flex-shrink-0">
+          <div class="absolute inset-0 rounded-md pulse-ring bg-amber-400"></div>
+          <svg class="w-3.5 h-3.5 text-white relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div>
+          <dt class="text-[9px] text-gray-500 uppercase">Updated</dt>
+          <dd class="text-sm font-bold text-gray-800" id="last-updated">--</dd>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mt-1.5 text-[9px]">
+        <span id="next-sync">5:00</span>
+        <div class="flex-1 mx-2 h-1 bg-gray-200 rounded-full overflow-hidden">
+          <div id="sync-progress" class="h-1 bg-gradient-to-r from-amber-400 to-orange-600 w-0"></div>
+        </div>
+        <button onclick="event.stopPropagation(); toggleAutoRefresh()" class="text-amber-600 font-medium">
+          <span id="auto-refresh-status">ON</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form and Product List Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+    <!-- Add Product Form -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-6 sm:p-8">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Add New Product
+        </h3>
+        
+        <form id="product-form" onsubmit="handleAddProduct(event)" enctype="multipart/form-data">
+          <div class="space-y-6">
+            <div>
+              <label for="productName" class="block text-sm font-medium text-gray-700 mb-2">
+                Product Name <span class="text-red-500">*</span>
+              </label>
+              <input type="text" id="productName" name="name" required
+                     placeholder="Enter product name"
+                     class="block w-full px-4 py-2.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-gray-400">
+            </div>
+            
+            <div>
+              <label for="productPrice" class="block text-sm font-medium text-gray-700 mb-2">
+                Price ($) <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <span class="text-gray-500 text-sm">$</span>
+                </div>
+                <input type="number" id="productPrice" name="price" step="0.01" min="0" required
+                       placeholder="0.00"
+                       class="block w-full pl-8 pr-4 py-2.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-gray-400">
+              </div>
+            </div>
+            
+            <div>
+              <label for="productDescription" class="block text-sm font-medium text-gray-700 mb-2">
+                Description <span class="text-red-500">*</span>
+              </label>
+              <textarea id="productDescription" name="description" rows="4" required
+                        placeholder="Describe your product features, specifications, and benefits..."
+                        class="block w-full px-4 py-2.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-gray-400 resize-y"></textarea>
+              <p class="mt-2 text-xs text-gray-500">Provide detailed information about your product</p>
+            </div>
+            
+            <div>
+              <label for="productImage" class="block text-sm font-medium text-gray-700 mb-2">
+                Product Image <span class="text-red-500">*</span>
+              </label>
+              <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary transition-colors duration-200 group">
+                <div class="space-y-2 text-center">
+                  <svg class="mx-auto h-12 w-12 text-gray-400 group-hover:text-primary transition-colors duration-200" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <div class="flex text-sm text-gray-600">
+                    <label for="productImage" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-secondary focus-within:outline-none transition-colors duration-200">
+                      <span class="hover:underline">Upload a file</span>
+                      <input id="productImage" name="image" type="file" accept="image/*" required class="sr-only">
+                    </label>
+                    <p class="pl-1">or drag and drop</p>
+                  </div>
+                  <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <label for="productCategory" class="block text-sm font-medium text-gray-700 mb-2">
+                Category <span class="text-red-500">*</span>
+              </label>
+              <select id="productCategory" name="category" required
+                      class="block w-full px-4 py-2.5 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-gray-400">
+                <option value="" class="text-gray-500">Select a category</option>
+                <option value="iphones">iPhones</option>
+                <option value="laptops">Laptops</option>
+                <option value="tablets">Tablets</option>
+                <option value="audio">Audio</option>
+                <option value="gaming">Gaming</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-8 space-y-4">
+            <button type="submit" id="submit-btn"
+                    class="w-full flex justify-center items-center px-4 py-3 bg-primary text-white font-medium rounded-md shadow-sm hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              </svg>
+              Add Product
+            </button>
+            
+            <div class="flex items-center justify-center space-x-1.5 text-xs text-gray-500">
+              <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Your information is secure and encrypted</span>
+            </div>
+          </div>
+        </form>
+        
+        <div id="form-message" class="mt-4 hidden"></div>
+      </div>
+    </div>
+
+    <!-- Product List -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-6 py-6 sm:p-8">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">Product Management</h3>
+        
+        <div id="products-list" class="space-y-4">
+          <div class="text-center text-gray-500 py-12">
+            Loading products...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+    </div>
+    <style>
+        /* Custom focus styles for better accessibility */
+        input:focus, textarea:focus, select:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        /* Smooth transitions for form elements */
+        input, textarea, select {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        /* Better file input styling */
+        input[type="file"]::-webkit-file-upload-button {
+            visibility: hidden;
+        }
+        
+        /* Enhanced button interaction */
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Subtle gradient for the form background */
+        .bg-white {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+    </style>
+    <script src="js/admin.js"></script>
+</body>
+</html>

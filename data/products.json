@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1758827765367,
+    "name": "iphone 15 pro",
+    "price": 50000,
+    "description": "black",
+    "category": "smartphones",
+    "image": "1758827765339-65486040.jpg",
+    "createdAt": "2025-09-25T19:16:05.368Z"
+  },
+  {
+    "id": 1758874436284,
+    "name": "iphone 15 pro",
+    "price": 4000,
+    "description": "black",
+    "category": "tablets",
+    "image": "1758874436221-793165100.jpg",
+    "createdAt": "2025-09-26T08:13:56.284Z"
+  },
+  {
+    "id": 1758879979433,
+    "name": "iphone 15 pro",
+    "price": 79999,
+    "description": "black no face id",
+    "category": "gaming",
+    "image": "1758879979393-628897848.jpg",
+    "createdAt": "2025-09-26T09:46:19.433Z"
+  },
+  {
+    "id": 1758880202895,
+    "name": "iphone 15 pro",
+    "price": 7000,
+    "description": "balck",
+    "category": "gaming",
+    "image": "1758880202891-226150551.jpg",
+    "createdAt": "2025-09-26T09:50:02.895Z"
+  },
+  {
+    "id": 1758887950317,
+    "name": "iphone 15 pro",
+    "price": 79999,
+    "description": "white",
+    "category": "smart-home",
+    "image": "1758887950254-394671081.JPG",
+    "createdAt": "2025-09-26T11:59:10.317Z"
+  }
+]
