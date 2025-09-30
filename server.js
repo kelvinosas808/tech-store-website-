@@ -1,3 +1,4 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const express = require('express');
 const multer = require('multer');
@@ -9,13 +10,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ========== MongoDB Connection ==========
-mongoose.connect('mongodb+srv://kelvin_808_user:igieweosakpolor@cluster0.c9i6ekp.mongodb.net/productsDB?retryWrites=true&w=majority&appName=Cluster0', {
-
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+// ========== MongoDB Connection ==========
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 })
 .then(() => console.log('✅ Connected to MongoDB Atlas'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
+
 
 // ========== Product Schema ==========
 const productSchema = new mongoose.Schema({
