@@ -90,6 +90,7 @@ app.get('/api/products/:id', async (req, res) => {
 app.post('/api/products', upload.single('image'), async (req, res) => {
     try {
         const { name, price, description, category } = req.body;
+
         if (!name || !price || !description) {
             return res.status(400).json({ error: 'Name, price, and description are required' });
         }
@@ -99,7 +100,8 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
             price: parseFloat(price),
             description: description.trim(),
             category: category || 'uncategorized',
-            image: req.file ? `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}` : null
+            // Always save full https:// URL for Render
+            image: req.file ? `https://${req.get('host')}/uploads/${req.file.filename}` : null
         });
 
         await newProduct.save();
