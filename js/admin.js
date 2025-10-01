@@ -5,7 +5,7 @@ class AdminPanel {
     constructor() {
         this.isLoggedIn = false;
         this.products = [];
-        this.apiBaseUrl = 'http://localhost:3000'; // Base URL for API
+        this.apiBaseUrl = 'https://osawese-tech.onrender.com'; // ✅ Render backend URL
         this.init();
     }
 
@@ -46,61 +46,60 @@ class AdminPanel {
             }
         } catch (error) {
             console.error('Error loading products:', error);
-            this.showMessage('Error loading products. Make sure the server is running on port 3000.', 'error');
+            this.showMessage('Error loading products. Make sure the backend is online.', 'error');
         }
     }
 
-renderProductsList() {
-    const productsList = document.getElementById('products-list');
-    
-    if (this.products.length === 0) {
-        productsList.innerHTML = `
-            <div class="text-center text-gray-500 py-8">
-                <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2M4 13h2m13-8l-1 1m-6 0l-1 1"></path>
-                </svg>
-                <p>No products added yet</p>
-                <p class="text-sm text-gray-400">Add your first product using the form on the left</p>
-            </div>
-        `;
-        return;
-    }
-
-    productsList.innerHTML = this.products.map(product => `
-        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-            <div class="flex items-center space-x-4">
-                ${product.image && product.image.trim() !== "" ? `
-                    <div class="flex-shrink-0">
-                        <img src="${product.image}" 
-                             alt="${product.name}" 
-                             class="h-16 w-16 object-cover rounded-md"
-                             onerror="this.style.display='none'">
-                    </div>
-                ` : ""}
-                <div class="flex-1 min-w-0">
-                    <h4 class="text-sm font-medium text-gray-900">${product.name}</h4>
+    renderProductsList() {
+        const productsList = document.getElementById('products-list');
         
-                    <p class="text-sm text-gray-500">${
-                        product.category 
-                         ? product.category.charAt(0).toUpperCase() + product.category.slice(1): 'Uncategorized'}
-                   </p>
-                    <p class="text-lg font-bold text-primary"> ₦${Number(product.price).toLocaleString("en-NG")}</p>
+        if (this.products.length === 0) {
+            productsList.innerHTML = `
+                <div class="text-center text-gray-500 py-8">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2M4 13h2m13-8l-1 1m-6 0l-1 1"></path>
+                    </svg>
+                    <p>No products added yet</p>
+                    <p class="text-sm text-gray-400">Add your first product using the form on the left</p>
                 </div>
-                <div class="flex-shrink-0">
-                    <button onclick="adminPanel.deleteProduct('${product._id}')" 
-                            class="text-red-600 hover:text-red-900 transition-colors">
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                            </path>
-                        </svg>
-                    </button>
+            `;
+            return;
+        }
+
+        productsList.innerHTML = this.products.map(product => `
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center space-x-4">
+                    ${product.image && product.image.trim() !== "" ? `
+                        <div class="flex-shrink-0">
+                            <img src="${product.image}" 
+                                 alt="${product.name}" 
+                                 class="h-16 w-16 object-cover rounded-md"
+                                 onerror="this.style.display='none'">
+                        </div>
+                    ` : ""}
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-sm font-medium text-gray-900">${product.name}</h4>
+                        <p class="text-sm text-gray-500">${
+                            product.category 
+                             ? product.category.charAt(0).toUpperCase() + product.category.slice(1) 
+                             : 'Uncategorized'}
+                        </p>
+                        <p class="text-lg font-bold text-primary">₦${Number(product.price).toLocaleString("en-NG")}</p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <button onclick="adminPanel.deleteProduct('${product._id}')" 
+                                class="text-red-600 hover:text-red-900 transition-colors">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
-}
-
+        `).join('');
+    }
 
     async deleteProduct(productId) {
         if (!confirm('Are you sure you want to delete this product?')) {
@@ -148,7 +147,7 @@ renderProductsList() {
 }
 
 // ===============================
-// Global functions for inline event handlers
+// Global functions
 // ===============================
 function handleLogin(event) {
     event.preventDefault();
@@ -206,7 +205,7 @@ async function handleAddProduct(event) {
         }
     } catch (error) {
         console.error('Error adding product:', error);
-        adminPanel.showMessage('Error connecting to server. Make sure the server is running on port 3000.', 'error');
+        adminPanel.showMessage('Error connecting to server. Make sure the backend is online.', 'error');
     } finally {
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
