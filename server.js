@@ -19,9 +19,9 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // ========== Cloudinary Config ==========
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // ========== Product Schema ==========
@@ -30,7 +30,8 @@ const productSchema = new mongoose.Schema({
   price: Number,
   description: String,
   category: String,
-  image: String,
+  image: String,       // Cloudinary secure URL
+  publicId: String,    // Cloudinary public_id (for delete)
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -88,7 +89,8 @@ app.post('/api/products', upload.single('image'), async (req, res) => {
       price: parseFloat(price),
       description: description.trim(),
       category: category || 'uncategorized',
-      image: req.file ? req.file.path : null, // Cloudinary URL
+      image: req.file ? req.file.path : null,       // Cloudinary URL
+      publicId: req.file ? req.file.filename : null // Cloudinary public_id
     });
 
     await newProduct.save();
@@ -104,8 +106,10 @@ app.put('/api/products/:id', upload.single('image'), async (req, res) => {
   try {
     const updates = req.body;
 
+    // If new image uploaded
     if (req.file) {
-      updates.image = req.file.path; // Cloudinary URL
+      updates.image = req.file.path;
+      updates.publicId = req.file.filename;
     }
 
     const product = await Product.findByIdAndUpdate(req.params.id, updates, { new: true });
@@ -124,10 +128,13 @@ app.delete('/api/products/:id', async (req, res) => {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
-    // delete from cloudinary
-    if (product.image) {
-      const publicId = product.image.split("/").pop().split(".")[0];
-      await cloudinary.uploader.destroy(`products/${publicId}`);
+    // delete from cloudinary if publicId exists
+    if (product.publicId) {
+      try {
+        await cloudinary.uploader.destroy(product.publicId);
+      } catch (err) {
+        console.error("⚠️ Failed to delete image from Cloudinary:", err.message);
+      }
     }
 
     res.json({ message: 'Product deleted successfully' });
